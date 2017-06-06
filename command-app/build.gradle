@@ -36,6 +36,8 @@ dependencies {
     }
     compile("org.springframework.boot:spring-boot-starter-jetty")
     compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.axonframework:axon-spring-boot-starter:3.0.5")
+    compile("org.axonframework:axon-mongo:3.0.5")
     testCompile("junit:junit")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
