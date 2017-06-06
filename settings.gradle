@@ -1,0 +1,2 @@
+include 'query-app'
+include 'command-app'
