@@ -1,26 +1,66 @@
 package org.tungsten.service.hastelloy;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.rabbitmq.client.ConnectionFactory;
+import org.axonframework.amqp.eventhandling.spring.SpringAMQPPublisher;
+import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
+import org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate;
+import org.axonframework.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
+import org.axonframework.mongo.eventsourcing.eventstore.MongoTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
 @Configuration
 @EnableAutoConfiguration
-public class AppConfiguration{
+public class AppConfiguration {
 
     @Bean
-    public EventStore eventStore(EventStorageEngine storageEngine){
+    public EventBus eventBus(EventStorageEngine storageEngine) {
         return new EmbeddedEventStore(storageEngine);
     }
 
     @Bean
-    public EventStorageEngine eventStorageEngine(){
-//        return new MongoEventStorageEngine();
+    @ConditionalOnProperty(name = "axon.eventstoreengine", havingValue = "mongodb")
+    public EventStorageEngine eventStorageEngine(@Value("${mongodb.database-name}") final String databaseName, final MongoClient mongoClient) {
+        final MongoTemplate mongoTemplate = new DefaultMongoTemplate(mongoClient, databaseName, "domainevents", "snapshotevents");
+        return new MongoEventStorageEngine(mongoTemplate);
+    }
+
+    @Bean(name = "eventStorageEngine")
+    @ConditionalOnProperty(name = "axon.eventstoreengine", havingValue = "inmemory", matchIfMissing = true)
+    public EventStorageEngine inMemoryEventStorageEngine(){
         return new InMemoryEventStorageEngine();
+    }
+
+    @Bean
+    public MongoClient mongoClient(@Value("${mongodb.uri}") final String mongoUri) {
+        return new MongoClient(new MongoClientURI(mongoUri));
+    }
+
+//    @Bean
+//    public SpringAMQPPublisher springAMQPPublisher(EventStore eventStore) {
+//        SpringAMQPPublisher springAMQPPublisher = new SpringAMQPPublisher(eventStore);
+//        springAMQPPublisher.start(); // thought this will be implicit but not. So required to start before returning
+//        return springAMQPPublisher;
+//    }
+
+    @Bean
+    public ConnectionFactory connectionFactory(@Value("${rabbitmq.broker-url}") final String brokerUrl) throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setUri(brokerUrl);
+        return connectionFactory;
     }
 }
 

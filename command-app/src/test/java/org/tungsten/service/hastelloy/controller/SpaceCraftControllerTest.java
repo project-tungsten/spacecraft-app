@@ -1,5 +1,7 @@
 package org.tungsten.service.hastelloy.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +23,19 @@ public class SpaceCraftControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void createSpaceCraft() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/create", myAwesomeSpaceCraft()).contentType(MediaType.APPLICATION_JSON_UTF8))
+        mockMvc.perform(MockMvcRequestBuilders.post("/create")
+                .content(myAwesomeSpaceCraft())
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isCreated());
     }
 
-    private Object myAwesomeSpaceCraft() {
+    private String myAwesomeSpaceCraft() throws JsonProcessingException {
         final HashMap<String, String> spaceCraft = new HashMap<>();
         spaceCraft.put("name", "awesome1");
-        return spaceCraft;
+        return objectMapper.writeValueAsString(spaceCraft);
     }
 }

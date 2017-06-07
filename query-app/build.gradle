@@ -36,6 +36,11 @@ dependencies {
     }
     compile("org.springframework.boot:spring-boot-starter-jetty")
     compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.springframework.data:spring-data-mongodb")
+    compile("org.springframework.amqp:spring-rabbit:1.7.2.RELEASE")
+    compile("org.axonframework:axon-core:3.0.5")
+    compile("org.axonframework:axon-amqp:3.0.5")
+    compile("org.axonframework:axon-spring-boot-starter:3.0.5")
     testCompile("junit:junit")
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
