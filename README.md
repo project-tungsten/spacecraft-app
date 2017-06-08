@@ -23,6 +23,7 @@ Running locally with default users and permissions
 ```
 ./gradlew build
 ```
+*if gradlew does not work try running `./init_gradle_wrapper.sh` to properly initialize the gradle wrapper*
 
 Run command-app using `../gradlew run` inside "command-app" directory. [http://localhost:8080/health](http://localhost:8080/health)
 
